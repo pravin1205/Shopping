@@ -1,0 +1,55 @@
+version: '3'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: dbContainer
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+  apigateway:
+    build: ./ApiGateway
+    ports:
+      - "9001:9001"
+    depends_on:
+      - discovery-server
+      - mongodb
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/
+  discovery-server:
+    build: ./discovery-server
+    ports:
+      - "8761:8761"
+
+  inventory-service:
+    build: ./inventory-service
+    ports:
+      - "9002:9002"
+    depends_on:
+      - discovery-server
+      - mongodb
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/
+  order-service:
+    build: ./order-service
+    ports:
+      - "9003:9003"
+    depends_on:
+      - discovery-server
+      - mongodb
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/
+
+  product-service:
+    build: ./product-service
+    ports:
+      - "9004:9004"
+    depends_on:
+      - discovery-server
+      - mongodb
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/
+
+volumes:
+  mongo-data:
